@@ -2,7 +2,7 @@ int size = 40;
 int w = 9;
 int h = 9;
 int[] grid = new int[w * h];
-int mines = 40;
+int mines = 5;
 
 void setup() {
   size(1600,900);
@@ -53,4 +53,28 @@ void mouseClicked() {
 }
 
 void draw() {
+  textAlign(CENTER);
+        textSize(20);
+        text(numAdjacent(grid,0,0), 500 + size/2, 500 + size/2);
+        fill(0,0,0);
+}
+
+int numAdjacent(int[] grid, int x, int y) {
+  int counter = 0;
+  
+  if (grid[x + y * w] == -1)
+    return -1;
+  else {
+    for (int i = -1; i < 2; i++) {
+      for (int j = -1; j < 2; j++) {
+        int xPos = x + i;
+        int yPos = y + j;
+        if (xPos >= 0 && xPos < w && yPos >= 0 && yPos < h) {
+          if (grid[ xPos + yPos * w] == -1)
+          counter++;
+        }
+      }
+    }
+  }
+  return counter;
 }

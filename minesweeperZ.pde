@@ -12,7 +12,7 @@ void setup() {
     }
   }
   generateMines(mines);
-  displayText();
+  displayNumber();
 }
 
 void generateMines (int mines) {
@@ -25,7 +25,7 @@ void generateMines (int mines) {
 }
 }
 
-void displayText() {
+void displayNumber() {
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
       if (grid[i + w * j] == -1) {
@@ -39,7 +39,17 @@ void displayText() {
 }
 
 void mouseClicked() {
-  if (mouseButton == LEFT)
+  if (mouseButton == LEFT && mouseX < w * size && mouseY < h * size) {
+    if (grid[mouseX/size + mouseY/size * w] == -1) {
+      fill(255,0,0);
+      rect(mouseX/size*size, mouseY/size*size, size, size);
+      fill(0,0,0);
+      circle(mouseX/size*size+ size/2, mouseY/size*size+ size/2, size);
+      }
+  }
+  if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size) {
+    //flag
+  }
 }
 
 void draw() {

@@ -1,24 +1,23 @@
 int size = 40;
-int w = 9;
-int h = 9;
-int[][] grid = new int[w][h];
-int mines = 30;
+int h = 20;
+int w = 30;
+int[][] grid;
+int mines;
+int flags;
+boolean gameWon = false;
+boolean gameStarted = false;
 
 void setup() {
   size(1600,900);
+  background(0,50,100);
+  grid = new int[w][h];
+  mines = w*h/5;
+  flags = mines;
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
       square(i*size, j*size, size);
     }
   }
-  generateMines(mines);
-  int[][] nextGrid = new int[w][h];
-  for(int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      nextGrid[i][j] = numAdjacent(grid, i, j);
-    }
-  }
-  grid = nextGrid;
   displayNumber();
 }
 
@@ -29,7 +28,7 @@ void generateMines (int mines) {
     if (grid[x][y] != -1)
       grid[x][y] = -1;
     else i--;
-}
+  }
 }
 
 void displayNumber() {
@@ -47,6 +46,18 @@ void displayNumber() {
 
 void mouseClicked() {
   if (mouseButton == LEFT && mouseX < w * size && mouseY < h * size) {
+    if (gameStarted == false) {
+       generateMines(mines);
+       int[][] nextGrid = new int[w][h];
+       for(int i = 0; i < w; i++) {
+         for (int j = 0; j < h; j++) {
+         nextGrid[i][j] = numAdjacent(grid, i, j);
+         }
+        }
+       grid = nextGrid;
+       gameStarted = true;
+    }
+    
     if (grid[mouseX/size][mouseY/size] == -1) {
       fill(255,0,0);
       rect(mouseX/size*size, mouseY/size*size, size, size);
@@ -68,23 +79,28 @@ void mouseClicked() {
       }
   }
   if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size) {
-    //flag
+    // if cell isn't flagged or revealed else unflag
+    fill (255, 255, 0);
+    triangle(mouseX/size*size, mouseY/size*size, mouseX/size*size, 
+             mouseY/size*size + size, mouseX/size*size + size, mouseY/size*size + size/2);
+             flags--;
   }
 }
 
 void keyPressed() {
-  if (key == UP) {
+  if (key == UP && h < 21) {
     h++;
   }
-  if (key == DOWN) {
+  if (key == DOWN && h > 6) {
     h--;
   }
-  if (key == LEFT) {
+  if (key == LEFT && w > 6) {
     w--;
   }
-  if (key == RIGHT) {
+  if (key == RIGHT && w < 31) {
     w++;
   }
+  setup();
 }
 
 void draw() {

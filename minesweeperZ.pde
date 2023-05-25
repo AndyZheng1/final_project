@@ -21,11 +21,11 @@ void setup() {
   displayNumber();
 }
 
-void generateMines (int mines) {
+void generateMines (int mines, int xPos, int yPos) {
   for (int i = 0; i < mines; i++) {
     int x = (int)random(w);
     int y = (int)random(h);
-    if (grid[x][y] != -1)
+    if (grid[x][y] != -1 && (x > xPos+1 || x < xPos - 1) && (y > yPos+1 || y < yPos-1))
       grid[x][y] = -1;
     else i--;
   }
@@ -47,7 +47,7 @@ void displayNumber() {
 void mouseClicked() {
   if (mouseButton == LEFT && mouseX < w * size && mouseY < h * size) {
     if (gameStarted == false) {
-       generateMines(mines);
+       generateMines(mines, mouseX/size, mouseY/size);
        int[][] nextGrid = new int[w][h];
        for(int i = 0; i < w; i++) {
          for (int j = 0; j < h; j++) {
@@ -68,14 +68,14 @@ void mouseClicked() {
         int display = numAdjacent(grid, mouseX/size, mouseY/size);
         textAlign(CENTER);
         textSize(20);
-        text(display, mouseX/size*size + size/2, mouseY/size*size + size/2);
         fill(0,0,0);
+        text(display, mouseX/size*size + size/2, mouseY/size*size + size/2);
       }
       else { //safe cell propagation
       textAlign(CENTER);
         textSize(20);
-        text(0, mouseX/size*size + size/2, mouseY/size*size + size/2);
         fill(0,0,0);
+        text(0, mouseX/size*size + size/2, mouseY/size*size + size/2);
       }
   }
   if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size) {
@@ -88,22 +88,37 @@ void mouseClicked() {
 }
 
 void keyPressed() {
-  if (key == UP && h < 21) {
+  if (gameStarted == false) {
+    if (key == CODED) {
+  if (keyCode == UP && h < 21) {
     h++;
   }
-  if (key == DOWN && h > 6) {
+  if (keyCode == DOWN && h > 6) {
     h--;
   }
-  if (key == LEFT && w > 6) {
+  if (keyCode == LEFT && w > 6) {
     w--;
   }
-  if (key == RIGHT && w < 31) {
+  if (keyCode == RIGHT && w < 31) {
     w++;
   }
-  setup();
+    }
+}
 }
 
 void draw() {
+  if (keyPressed && gameStarted == false) {
+  background(0,50,100);
+  grid = new int[w][h];
+  mines = w*h/5;
+  flags = mines;
+  for(int i = 0; i < w; i++) {
+    for (int j = 0; j < h; j++) {
+      square(i*size, j*size, size);
+    }
+  }
+  displayNumber();
+}
 }
 
 int numAdjacent(int[][] grid, int x, int y) {

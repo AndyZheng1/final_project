@@ -18,7 +18,6 @@ void setup() {
       square(i*size, j*size, size);
     }
   }
-  displayNumber();
 }
 
 void generateMines (int mines, int xPos, int yPos) {
@@ -31,14 +30,12 @@ void generateMines (int mines, int xPos, int yPos) {
   }
 }
 
-void displayNumber() {
+void displayMines() {
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
       if (grid[i][j] == -1) {
-        textAlign(CENTER);
-        textSize(20);
-        text("-1", i*size + size/2, j*size + size/2);
         fill(0,0,0);
+        circle(i*size+ size/2, j*size+ size/2, size);
       }
     }
   }  
@@ -63,6 +60,7 @@ void mouseClicked() {
       rect(mouseX/size*size, mouseY/size*size, size, size);
       fill(0,0,0);
       circle(mouseX/size*size+ size/2, mouseY/size*size+ size/2, size);
+      displayMines();
       }
       else if (grid[mouseX/size][mouseY/size] > 0) {
         int display = numAdjacent(grid, mouseX/size, mouseY/size);
@@ -88,8 +86,15 @@ void mouseClicked() {
 }
 
 void keyPressed() {
+  
+  if (key == 'r') {
+      gameStarted = false;
+      redraw();
+    }
+  
+  if (key == CODED) {
   if (gameStarted == false) {
-    if (key == CODED) {
+
   if (keyCode == UP && h < 21) {
     h++;
   }
@@ -101,9 +106,9 @@ void keyPressed() {
   }
   if (keyCode == RIGHT && w < 31) {
     w++;
-  }
+      }
     }
-}
+  }
 }
 
 void draw() {
@@ -114,11 +119,17 @@ void draw() {
   flags = mines;
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
+      fill(255,255,255);
       square(i*size, j*size, size);
+      }
     }
   }
-  displayNumber();
-}
+  fill(100,50,100);
+  rect(w*size + 3*size, 3*size, 100, 100); 
+  textAlign(RIGHT);
+  textSize(100);
+  fill(0,0,0);
+  text(frameCount / 60, w*size + 3*size, 3*size);
 }
 
 int numAdjacent(int[][] grid, int x, int y) {

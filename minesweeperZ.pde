@@ -53,6 +53,7 @@ void mouseClicked() {
         }
        grid = nextGrid;
        gameStarted = true;
+       frameCount = 0;
     }
     
     if (grid[mouseX/size][mouseY/size] == -1) {
@@ -124,12 +125,14 @@ void draw() {
       }
     }
   }
+  if (gameStarted == true) {
   fill(100,50,100);
-  rect(w*size + 3*size, 3*size, 100, 100); 
+  rect(30*size, 0, size * 10, 100); 
   textAlign(RIGHT);
   textSize(100);
   fill(0,0,0);
-  text(frameCount / 60, w*size + 3*size, 3*size);
+  text(frameCount / 60, 40 * size, 2*size);
+  }
 }
 
 int numAdjacent(int[][] grid, int x, int y) {

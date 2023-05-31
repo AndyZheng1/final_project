@@ -22,7 +22,10 @@ public class Cell {
 }
 
   public void flag() {
-    flagged = true;
+    if (flagged)
+      flagged = false;
+    else
+      flagged = true;
   }
   
   public boolean isMine() {

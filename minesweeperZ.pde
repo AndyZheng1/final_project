@@ -5,11 +5,13 @@ Board grid;
 int mines;
 int flags;
 boolean gameWon = false;
+boolean gameOver = false;
 boolean gameStarted = false;
 
 void setup() {
   size(1600,900);
   background(0,50,100);
+  frameRate = 60;
   grid = new Board(w,h);
   mines = w*h/5;
   flags = mines;
@@ -35,11 +37,27 @@ void displayMines() {
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
       if (grid.getCell(i,j).isMine()) {
+        fill(255,255,255);
+        square(i*size, j*size, size);
         fill(0,0,0);
         circle(i*size + size/2, j*size + size/2, size);
       }
     }
   }  
+}
+
+void recursiveReveal(int x, int y) {
+  for (int i = -1; i < 2; i++) {
+      for (int j = -1; j < 2; j++) {
+        int xPos = x + i;
+        int yPos = y + j;
+        if (xPos >= 0 && xPos < w && yPos >= 0 && yPos < h) {
+          if (grid.getCell(xPos,yPos).numAdjacent == 0) {
+            grid.getCell(xPos,yPos).reveal();
+            recursiveReveal(xPos,yPos);}
+        }
+      }
+  }     
 }
 
 void mouseClicked() {
@@ -57,32 +75,43 @@ void mouseClicked() {
        frameCount = 0;
     }
     
-    if (grid.getCell(mouseX/size,mouseY/size).isMine()) {
+    if (grid.getCell(mouseX/size,mouseY/size).isMine() && 
+       !grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
       fill(255,0,0);
       rect(mouseX/size*size, mouseY/size*size, size, size);
       fill(0,0,0);
       circle(mouseX/size*size+ size/2, mouseY/size*size+ size/2, size);
       displayMines();
+      gameOver = true;
       }
-      else if (grid.getCell(mouseX/size,mouseY/size).getAdjacent() > 0) {
+      else if (grid.getCell(mouseX/size,mouseY/size).getAdjacent() > 0 && 
+              !grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
         int display = grid.getCell(mouseX/size,mouseY/size).getAdjacent();
         grid.getCell(mouseX/size,mouseY/size).reveal();
         textAlign(CENTER);
         textSize(20);
         fill(0,0,0);
         text(display, mouseX/size*size + size/2, mouseY/size*size + size/2);
+        if (grid.gameWon()) {
+          gameWon = true;
       }
-      else { //safe cell propagation
+      }
+      else if (!grid.getCell(mouseX/size,mouseY/size).isFlagged())
+      { //safe cell propagation
         grid.getCell(mouseX/size,mouseY/size).reveal();
         textAlign(CENTER);
         textSize(20);
         fill(0,0,0);
         text(0, mouseX/size*size + size/2, mouseY/size*size + size/2);
+        if (grid.gameWon()) {
+          gameWon = true;
+      }
       }
   }
   if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size) {
     // if cell isn't flagged or revealed else unflag
-    if (!grid.getCell(mouseX/size,mouseY/size).isFlagged() && !grid.getCell(mouseX/size,mouseY/size).isRevealed()) {
+    if (!grid.getCell(mouseX/size,mouseY/size).isFlagged() && 
+        !grid.getCell(mouseX/size,mouseY/size).isRevealed()) {
     grid.getCell(mouseX/size,mouseY/size).flag();
     fill (255, 255, 0);
     triangle(mouseX/size*size, mouseY/size*size, mouseX/size*size, 
@@ -101,7 +130,9 @@ void mouseClicked() {
 void keyPressed() {
   
   if (key == 'r') {
+      gameWon = false;
       gameStarted = false;
+      frameRate = 60;
       redraw();
     }
   
@@ -137,7 +168,7 @@ void draw() {
       }
     }
   }
-  if (gameStarted == true) {
+  if (gameStarted == true && !gameOver && !gameWon) {
   fill(100,50,100);
   rect(30*size, 0, size * 10, 100); 
   textAlign(RIGHT);
@@ -145,6 +176,9 @@ void draw() {
   fill(0,0,0);
   text(frameCount / 60, 40 * size, 2*size);
   }
+  
+  // if (gameWon)
+  // if (gameOver)
 }
 
 int numAdjacent(Board grid, int x, int y) {

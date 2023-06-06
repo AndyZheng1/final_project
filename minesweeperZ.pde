@@ -1,5 +1,5 @@
 int size = 40;
-int h = 20;
+int h = 16;
 int w = 30;
 Board grid;
 int mines;
@@ -13,7 +13,8 @@ void setup() {
   background(0,50,100);
   frameRate = 60;
   grid = new Board(w,h);
-  mines = w*h/5;
+  
+  mines = w*h/4 - 4;
   flags = mines;
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
@@ -52,9 +53,20 @@ void recursiveReveal(int x, int y) {
         int xPos = x + i;
         int yPos = y + j;
         if (xPos >= 0 && xPos < w && yPos >= 0 && yPos < h) {
-          if (grid.getCell(xPos,yPos).numAdjacent == 0) {
+          if (!grid.getCell(xPos,yPos).isRevealed() && grid.getCell(xPos,yPos).numAdjacent == 0) {
             grid.getCell(xPos,yPos).reveal();
+            textAlign(CENTER);
+            textSize(20);
+            fill(0,0,0);
+            text(grid.getCell(xPos,yPos).numAdjacent, xPos*size + size/2, yPos*size + size/2);
             recursiveReveal(xPos,yPos);}
+          else {
+            grid.getCell(xPos,yPos).reveal();
+            textAlign(CENTER);
+            textSize(20);
+            fill(0,0,0);
+            text(grid.getCell(xPos,yPos).numAdjacent, xPos*size + size/2, yPos*size + size/2);
+          }
         }
       }
   }     
@@ -71,6 +83,12 @@ void mouseClicked() {
          }
         }
        grid = nextGrid;
+       fill(255, 255, 0);
+       rect(30*size, 100, size * 10, 100); 
+       textAlign(RIGHT);
+       textSize(100);
+       fill(0,0,0);
+       text(flags, 40 * size, 100 + 2*size);
        gameStarted = true;
        frameCount = 0;
     }
@@ -98,11 +116,7 @@ void mouseClicked() {
       }
       else if (!grid.getCell(mouseX/size,mouseY/size).isFlagged())
       { //safe cell propagation
-        grid.getCell(mouseX/size,mouseY/size).reveal();
-        textAlign(CENTER);
-        textSize(20);
-        fill(0,0,0);
-        text(0, mouseX/size*size + size/2, mouseY/size*size + size/2);
+        recursiveReveal(mouseX/size,mouseY/size);
         if (grid.gameWon()) {
           gameWon = true;
       }
@@ -117,12 +131,24 @@ void mouseClicked() {
     triangle(mouseX/size*size, mouseY/size*size, mouseX/size*size, 
              mouseY/size*size + size, mouseX/size*size + size, mouseY/size*size + size/2);
              flags--;
+             fill(255, 255, 0);
+             rect(30*size, 100, size * 10, 100); 
+             textAlign(RIGHT);
+             textSize(100);
+             fill(0,0,0);
+             text(flags, 40 * size, 100 + 2*size);
     }
     else if (grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
       grid.getCell(mouseX/size,mouseY/size).flag();
       fill(255,255,255);
       square(mouseX/size*size, mouseY/size*size, size);
              flags++;
+             fill(255, 255, 0);
+             rect(30*size, 100, size * 10, 100); 
+             textAlign(RIGHT);
+             textSize(100);
+             fill(0,0,0);
+             text(flags, 40 * size, 100 + 2*size);
     }
   }
 }
@@ -131,9 +157,9 @@ void keyPressed() {
   
   if (key == 'r') {
       gameWon = false;
+      gameOver = false;
       gameStarted = false;
       frameRate = 60;
-      redraw();
     }
   
   if (key == CODED) {
@@ -156,10 +182,10 @@ void keyPressed() {
 }
 
 void draw() {
-  if (keyPressed && gameStarted == false) {
+  if (keyPressed && !gameStarted) {
   background(0,50,100);
   grid = new Board(w,h);
-  mines = w*h/5;
+  mines = w*h/4 - 4;
   flags = mines;
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
@@ -168,7 +194,7 @@ void draw() {
       }
     }
   }
-  if (gameStarted == true && !gameOver && !gameWon) {
+  else if (gameStarted && !gameOver) {
   fill(100,50,100);
   rect(30*size, 0, size * 10, 100); 
   textAlign(RIGHT);

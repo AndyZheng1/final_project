@@ -24,9 +24,10 @@ public class Board {
     boolean won = true;
     for(int i = 0; i < rows; i++) {
       for(int j = 0; j < columns; j++) {
-        if(!cells[i][j].isMine() && cells[i][j].isRevealed())
-          won = won && true;
-        else won = false;
+        if(!cells[i][j].isMine()) {
+          if(!cells[i][j].isRevealed())
+          won = false;
+        }
       }
     }
     return won;

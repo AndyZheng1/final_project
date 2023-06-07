@@ -27,7 +27,7 @@ void generateMines (int mines, int xPos, int yPos) {
   for (int i = 0; i < mines; i++) {
     int x = (int)random(w);
     int y = (int)random(h);
-    if (grid.getCell(x,y).getAdjacent() != -1 && (x > xPos+1 || x < xPos - 1) && (y > yPos+1 || y < yPos-1)) {
+    if (grid.getCell(x,y).getAdjacent() != -1 && (x > xPos+1 || x < xPos - 1) || (y > yPos+1 || y < yPos-1)) {
       grid.getCell(x,y).setAdjacent(-1);
     }
     else i--;
@@ -163,19 +163,19 @@ void keyPressed() {
     }
   
   if (key == CODED) {
-  if (gameStarted == false) {
+    if (gameStarted == false) {
 
-  if (keyCode == UP && h < 21) {
-    h++;
-  }
-  if (keyCode == DOWN && h > 6) {
-    h--;
-  }
-  if (keyCode == LEFT && w > 6) {
-    w--;
-  }
-  if (keyCode == RIGHT && w < 31) {
-    w++;
+      if (keyCode == UP && h < 21) {
+        h++;
+      }
+      if (keyCode == DOWN && h > 6) {
+        h--;
+      }
+      if (keyCode == LEFT && w > 6) {
+        w--;
+      }
+      if (keyCode == RIGHT && w < 31) {
+        w++;
       }
     }
   }
@@ -183,18 +183,19 @@ void keyPressed() {
 
 void draw() {
   if (keyPressed && !gameStarted) {
-  background(0,50,100);
-  grid = new Board(w,h);
-  mines = w*h/4 - 4;
-  flags = mines;
-  for(int i = 0; i < w; i++) {
-    for (int j = 0; j < h; j++) {
-      fill(255,255,255);
-      square(i*size, j*size, size);
+    frameRate = 60;
+    background(0,50,100);
+    grid = new Board(w,h);
+    mines = w*h/4 - 4;
+    flags = mines;
+    for(int i = 0; i < w; i++) {
+      for (int j = 0; j < h; j++) {
+        fill(255,255,255);
+        square(i*size, j*size, size);
+        }
       }
     }
-  }
-  else if (gameStarted && !gameOver) {
+  else if (gameStarted && !gameOver && !gameWon) {
   fill(100,50,100);
   rect(30*size, 0, size * 10, 100); 
   textAlign(RIGHT);
@@ -203,7 +204,20 @@ void draw() {
   text(frameCount / 60, 40 * size, 2*size);
   }
   
-  // if (gameWon)
+  if (gameWon) {
+    int finalFrame = frameCount;
+    frameRate = 0;
+    fill(0,0,0);
+    rect(500, 0, 600, 500);
+    fill(255,255,255);
+    textAlign(LEFT);
+    textSize(100);
+    text("Game Won", 600, 100);
+    text("Time: " + finalFrame / 60, 600, 200);
+    fill(0,100,255);
+    text("Click r to", 600, 300);
+    text("reset board", 600, 400);
+  }
   // if (gameOver)
 }
 

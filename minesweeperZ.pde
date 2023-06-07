@@ -14,7 +14,7 @@ void setup() {
   frameRate(60);
   grid = new Board(w,h);
   
-  mines = w*h/4 - 4;
+  mines = w*h/5;
   flags = mines;
   for(int i = 0; i < w; i++) {
     for (int j = 0; j < h; j++) {
@@ -82,19 +82,20 @@ void mouseClicked() {
          nextGrid.getCell(i,j).setAdjacent(numAdjacent(grid, i, j));
          }
         }
-       grid = nextGrid;
-       fill(255, 255, 0);
-       rect(30*size, 100, size * 10, 100); 
-       textAlign(RIGHT);
-       textSize(100);
-       fill(0,0,0);
-       text(flags, 40 * size, 100 + 2*size);
-       gameStarted = true;
-       frameCount = 0;
+         grid = nextGrid;
+         fill(255, 255, 0);
+         rect(30*size, 100, size * 10, 100); 
+         textAlign(RIGHT);
+         textSize(100);
+         fill(0,0,0);
+         text(flags, 40 * size, 100 + 2*size);
+         gameStarted = true;
+         frameCount = 0;
     }
     
     if (grid.getCell(mouseX/size,mouseY/size).isMine() && 
-       !grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
+       !grid.getCell(mouseX/size,mouseY/size).isFlagged()
+       && !gameOver && !gameWon) {
       displayMines();
       fill(255,0,0);
       rect(mouseX/size*size, mouseY/size*size, size, size);
@@ -103,7 +104,8 @@ void mouseClicked() {
       gameOver = true;
       }
       else if (grid.getCell(mouseX/size,mouseY/size).getAdjacent() > 0 && 
-              !grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
+              !grid.getCell(mouseX/size,mouseY/size).isFlagged()
+              && !gameOver && !gameWon) {
         int display = grid.getCell(mouseX/size,mouseY/size).getAdjacent();
         grid.getCell(mouseX/size,mouseY/size).reveal();
         textAlign(CENTER);
@@ -114,7 +116,7 @@ void mouseClicked() {
           gameWon = true;
       }
       }
-      else if (!grid.getCell(mouseX/size,mouseY/size).isFlagged())
+      else if (!grid.getCell(mouseX/size,mouseY/size).isFlagged() && !gameOver && !gameWon)
       { //safe cell propagation
         recursiveReveal(mouseX/size,mouseY/size);
         if (grid.gameWon()) {
@@ -122,33 +124,35 @@ void mouseClicked() {
       }
       }
   }
-  if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size) {
+  if (mouseButton == RIGHT && mouseX < w * size && mouseY < h * size 
+      && !gameOver && !gameWon) {
     // if cell isn't flagged or revealed else unflag
     if (!grid.getCell(mouseX/size,mouseY/size).isFlagged() && 
         !grid.getCell(mouseX/size,mouseY/size).isRevealed()) {
-    grid.getCell(mouseX/size,mouseY/size).flag();
-    fill (255, 255, 0);
-    triangle(mouseX/size*size, mouseY/size*size, mouseX/size*size, 
-             mouseY/size*size + size, mouseX/size*size + size, mouseY/size*size + size/2);
-             flags--;
-             fill(255, 255, 0);
-             rect(30*size, 100, size * 10, 100); 
-             textAlign(RIGHT);
-             textSize(100);
-             fill(0,0,0);
-             text(flags, 40 * size, 100 + 2*size);
+          grid.getCell(mouseX/size,mouseY/size).flag();
+          fill (255, 255, 0);
+          triangle(mouseX/size*size, mouseY/size*size, mouseX/size*size, 
+                   mouseY/size*size + size, mouseX/size*size + size, mouseY/size*size + size/2);
+          flags--;
+          fill(255, 255, 0);
+          rect(30*size, 100, size * 10, 100); 
+          textAlign(RIGHT);
+          textSize(100);
+          fill(0,0,0);
+          text(flags, 40 * size, 100 + 2*size);
     }
-    else if (grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
-      grid.getCell(mouseX/size,mouseY/size).flag();
-      fill(255,255,255);
-      square(mouseX/size*size, mouseY/size*size, size);
-             flags++;
-             fill(255, 255, 0);
-             rect(30*size, 100, size * 10, 100); 
-             textAlign(RIGHT);
-             textSize(100);
-             fill(0,0,0);
-             text(flags, 40 * size, 100 + 2*size);
+    else if (grid.getCell(mouseX/size,mouseY/size).isFlagged()
+             && !gameOver && !gameWon) {
+        grid.getCell(mouseX/size,mouseY/size).flag();
+        fill(255,255,255);
+        square(mouseX/size*size, mouseY/size*size, size);
+        flags++;       
+        fill(255, 255, 0);
+        rect(30*size, 100, size * 10, 100); 
+        textAlign(RIGHT);
+        textSize(100);
+        fill(0,0,0);
+        text(flags, 40 * size, 100 + 2*size);
     }
   }
 }
@@ -164,16 +168,16 @@ void keyPressed() {
   if (key == CODED) {
     if (gameStarted == false) {
 
-      if (keyCode == UP && h < 21) {
+      if (keyCode == DOWN && h < 22) {
         h++;
       }
-      if (keyCode == DOWN && h > 6) {
+      if (keyCode == UP && h > 6) {
         h--;
       }
       if (keyCode == LEFT && w > 6) {
         w--;
       }
-      if (keyCode == RIGHT && w < 31) {
+      if (keyCode == RIGHT && w < 30) {
         w++;
       }
     }
@@ -184,7 +188,7 @@ void draw() {
   if (keyPressed && !gameStarted) {
     background(0,50,100);
     grid = new Board(w,h);
-    mines = w*h/4 - 4;
+    mines = w*h/5;
     flags = mines;
     for(int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {
@@ -194,29 +198,49 @@ void draw() {
       }
     }
   else if (gameStarted && !gameOver && !gameWon) {
-  fill(100,50,100);
-  rect(30*size, 0, size * 10, 100); 
-  textAlign(RIGHT);
-  textSize(100);
-  fill(0,0,0);
-  text(frameCount / 60, 40 * size, 2*size);
+    fill(100,50,100);
+    rect(30*size, 0, size * 10, 100); 
+    textAlign(RIGHT);
+    textSize(100);
+    fill(0,0,0);
+    text(frameCount / 60, 40 * size, 2*size);
   }
   
   if (gameWon) {
     int finalFrame = frameCount;
     fill(0,0,0);
-    rect(500, 0, 600, 500);
-    fill(255,255,255);
+    rect(30*size, 200, size * 10, 350);
+    fill(0,255,0);
     textAlign(LEFT);
-    textSize(100);
-    text("Game Won", 550, 100);
-    text("Time: " + finalFrame / 60, 550, 200);
+    textSize(50);
+    text("Game Won", 31*size, 250);
+    fill(255,255,255);
+    text("Board: " + w + " x " + h, 31*size, 300);
+    text("Time: " + finalFrame / 60, 31*size, 350);
+    text("seconds" , 31*size, 400);
     fill(0,100,255);
-    text("Click r to", 550, 300);
-    text("reset board", 550, 400);
+    text("Click r to", 31*size, 450);
+    text("reset board", 31*size, 500);
     frameCount = finalFrame - 1;
   }
-  // if (gameOver)
+  
+  if (gameOver) {
+    int finalFrame = frameCount;
+    fill(0,0,0);
+    rect(30*size, 200, size * 10, 350);
+    fill(255,0,0);
+    textAlign(LEFT);
+    textSize(50);
+    text("Game Over", 31*size, 250);
+    fill(255,255,255);
+    text("Board: " + w + " x " + h, 31*size, 300);
+    text("Time: " + finalFrame / 60, 31*size, 350);
+    text("seconds" , 31*size, 400);
+    fill(0,100,255);
+    text("Click r to", 31*size, 450);
+    text("reset board", 31*size, 500);
+    frameCount = finalFrame - 1;
+  }
 }
 
 int numAdjacent(Board grid, int x, int y) {

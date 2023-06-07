@@ -11,7 +11,7 @@ boolean gameStarted = false;
 void setup() {
   size(1600,900);
   background(0,50,100);
-  frameRate = 60;
+  frameRate(60);
   grid = new Board(w,h);
   
   mines = w*h/4 - 4;
@@ -95,11 +95,11 @@ void mouseClicked() {
     
     if (grid.getCell(mouseX/size,mouseY/size).isMine() && 
        !grid.getCell(mouseX/size,mouseY/size).isFlagged()) {
+      displayMines();
       fill(255,0,0);
       rect(mouseX/size*size, mouseY/size*size, size, size);
       fill(0,0,0);
       circle(mouseX/size*size+ size/2, mouseY/size*size+ size/2, size);
-      displayMines();
       gameOver = true;
       }
       else if (grid.getCell(mouseX/size,mouseY/size).getAdjacent() > 0 && 
@@ -159,7 +159,6 @@ void keyPressed() {
       gameWon = false;
       gameOver = false;
       gameStarted = false;
-      frameRate = 60;
     }
   
   if (key == CODED) {
@@ -183,7 +182,6 @@ void keyPressed() {
 
 void draw() {
   if (keyPressed && !gameStarted) {
-    frameRate = 60;
     background(0,50,100);
     grid = new Board(w,h);
     mines = w*h/4 - 4;
@@ -206,17 +204,17 @@ void draw() {
   
   if (gameWon) {
     int finalFrame = frameCount;
-    frameRate = 0;
     fill(0,0,0);
     rect(500, 0, 600, 500);
     fill(255,255,255);
     textAlign(LEFT);
     textSize(100);
-    text("Game Won", 600, 100);
-    text("Time: " + finalFrame / 60, 600, 200);
+    text("Game Won", 550, 100);
+    text("Time: " + finalFrame / 60, 550, 200);
     fill(0,100,255);
-    text("Click r to", 600, 300);
-    text("reset board", 600, 400);
+    text("Click r to", 550, 300);
+    text("reset board", 550, 400);
+    frameCount = finalFrame - 1;
   }
   // if (gameOver)
 }
